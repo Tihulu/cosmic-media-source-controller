@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-APP="cosmic-media-source-controller"
-REPO_URL="${REPO_URL:-https://github.com/Tihulu/cosmic-media-source-controller.git}"
+APP="tihulu-media-source-controller"
+REPO_URL="${REPO_URL:-https://github.com/Tihulu/tihulu-media-source-controller.git}"
 BRANCH="${BRANCH:-main}"
 PREFIX="${PREFIX:-/usr/local}"
 BINDIR="$PREFIX/bin"
 DESKTOP_DIR="$PREFIX/share/applications"
-DESKTOP_FILE="com.github.tihulu.CosmicMediaSourceController.desktop"
+DESKTOP_FILE="com.github.tihulu.TihuluMediaSourceController.desktop"
 
 log() {
   printf '\033[1;34m==>\033[0m %s\n' "$*"
@@ -55,7 +55,7 @@ main() {
   else
     cleanup_dir="$(mktemp -d)"
     workdir="$cleanup_dir/$APP"
-    log "Cloning $APP from GitHub"
+    log "Cloning Tihulu Media Source Controller from GitHub"
     git clone --depth 1 --branch "$BRANCH" "$REPO_URL" "$workdir"
   fi
 
