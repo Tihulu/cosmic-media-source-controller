@@ -1,9 +1,13 @@
 [Desktop Entry]
 Name=Tihulu Media Source Controller
-Comment=Route media keys to one selected media source
-Exec=tihulu-media-source-controller list
-Icon=multimedia-player
-Terminal=true
+Comment=Choose which media source your media keys control
 Type=Application
-Categories=Audio;Utility;
-Keywords=media;keys;mpris;cosmic;pop-os;playerctl;tihulu;
+Icon=multimedia-player
+Exec=tihulu-media-source-controller
+Terminal=false
+StartupNotify=true
+Categories=COSMIC
+Keywords=COSMIC;Media;Keys;MPRIS;Pop!_OS;Playerctl;Tihulu
+NoDisplay=true
+X-CosmicApplet=true
+X-CosmicHoverPopup=Auto
