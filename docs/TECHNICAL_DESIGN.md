@@ -70,7 +70,7 @@ The panel UI should use the visual direction from `assets/concept.png`:
 Default config path:
 
 ```text
-~/.config/cosmic-media-source-controller/config.toml
+~/.config/tihulu-media-source-controller/config.toml
 ```
 
 Example:
