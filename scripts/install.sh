@@ -5,6 +5,7 @@ APP="tihulu-media-source-controller"
 REPO_URL="${REPO_URL:-https://github.com/Tihulu/tihulu-media-source-controller.git}"
 BRANCH="${BRANCH:-main}"
 PREFIX="${PREFIX:-/usr}"
+LOCAL_INSTALL="${LOCAL_INSTALL:-0}"
 BINDIR="$PREFIX/bin"
 DESKTOP_DIR="$PREFIX/share/applications"
 DESKTOP_FILE="com.github.tihulu.TihuluMediaSourceController.desktop"
@@ -64,7 +65,7 @@ main() {
   local workdir=""
   local cleanup_dir=""
 
-  if is_project_root; then
+  if [ "$LOCAL_INSTALL" = "1" ] && is_project_root; then
     workdir="$PWD"
     log "Using current source tree: $workdir"
   else
