@@ -2,6 +2,7 @@
 set -euo pipefail
 
 APP="tihulu-media-source-controller"
+DAEMON="tihulu-media-key-daemon"
 REPO_URL="${REPO_URL:-https://github.com/Tihulu/tihulu-media-source-controller.git}"
 BRANCH="${BRANCH:-main}"
 PREFIX="${PREFIX:-/usr}"
@@ -36,6 +37,7 @@ install_dependencies() {
       git \
       cargo \
       playerctl \
+      python3-evdev \
       libnotify-bin \
       libx11-dev \
       libxi-dev \
@@ -47,12 +49,34 @@ install_dependencies() {
       libwayland-dev
   else
     warn "Automatic dependency installation is only supported on apt-based systems."
-    warn "Install these packages manually: git cargo playerctl libnotify-bin pkg-config libx11-dev libxi-dev libxcursor-dev libxrandr-dev libxinerama-dev libgl1-mesa-dev libxkbcommon-dev libwayland-dev"
+    warn "Install these packages manually: git cargo playerctl python3-evdev libnotify-bin pkg-config libx11-dev libxi-dev libxcursor-dev libxrandr-dev libxinerama-dev libgl1-mesa-dev libxkbcommon-dev libwayland-dev"
   fi
 }
 
 is_project_root() {
   [ -f "Cargo.toml" ] && grep -q "name = \"$APP\"" Cargo.toml
+}
+
+install_user_service() {
+  local user_dir="$HOME/.config/systemd/user"
+  mkdir -p "$user_dir"
+  cat > "$user_dir/$DAEMON.service" <<EOF
+[Unit]
+Description=Tihulu Media Key Daemon
+
+[Service]
+Type=simple
+ExecStart=$BINDIR/$DAEMON
+Restart=on-failure
+RestartSec=2
+Environment=TMSC_COMMAND=$BINDIR/$APP
+Environment=TMSC_MEDIA_KEY_GRAB=0
+
+[Install]
+WantedBy=default.target
+EOF
+  systemctl --user daemon-reload || true
+  systemctl --user enable --now "$DAEMON.service" || true
 }
 
 main() {
@@ -83,6 +107,11 @@ main() {
   log "Installing binary to $BINDIR/$APP"
   sudo install -Dm755 "target/release/$APP" "$BINDIR/$APP"
 
+  if [ -f "scripts/$DAEMON" ]; then
+    log "Installing media-key daemon to $BINDIR/$DAEMON"
+    sudo install -Dm755 "scripts/$DAEMON" "$BINDIR/$DAEMON"
+  fi
+
   if [ -f "packaging/$DESKTOP_FILE" ]; then
     log "Installing COSMIC applet desktop entry to $DESKTOP_DIR/$DESKTOP_FILE"
     sudo install -Dm644 "packaging/$DESKTOP_FILE" "$DESKTOP_DIR/$DESKTOP_FILE"
@@ -97,6 +126,10 @@ main() {
     sudo update-desktop-database "$DESKTOP_DIR" >/dev/null 2>&1 || true
   fi
 
+  log "Adding $USER to input group for media-key daemon access"
+  sudo usermod -aG input "$USER" || true
+  install_user_service
+
   if [ -n "$cleanup_dir" ]; then
     rm -rf "$cleanup_dir"
   fi
@@ -104,7 +137,8 @@ main() {
   log "Installation complete"
   echo "Run desktop GUI: $APP"
   echo "CLI example: $APP set spotify && $APP play-pause"
-  echo "COSMIC applet entry installed. If it does not appear immediately, restart COSMIC Panel or log out/in."
+  echo "Media-key daemon: systemctl --user status $DAEMON.service"
+  echo "Important: log out and back in once so the input group permission becomes active."
 }
 
 main "$@"
