@@ -4,7 +4,13 @@ A Pop!_OS / COSMIC applet concept for choosing exactly which media source your k
 
 The idea is simple: choose one active source, then **Previous**, **Play/Pause**, **Next**, **Stop**, **Volume**, and **Mute** always control that selected source.
 
-![COSMIC Media Source Controller UI concept](assets/concept.png)
+## One-line install
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Tihulu/cosmic-media-source-controller/main/scripts/install.sh | bash
+```
+
+The installer works on Pop!_OS and other apt-based distributions. It installs the required packages, clones the repository, builds the release binary, and installs it to `/usr/local/bin`.
 
 ## Why this exists
 
@@ -72,12 +78,11 @@ There is no switch for whether media keys are captured. The entire app exists to
 
 ```bash
 sudo apt update
-sudo apt install -y playerctl libnotify-bin cargo
+sudo apt install -y git playerctl libnotify-bin cargo
 
 git clone https://github.com/Tihulu/cosmic-media-source-controller.git
 cd cosmic-media-source-controller
-cargo build --release
-sudo install -Dm755 target/release/cosmic-media-source-controller /usr/local/bin/cosmic-media-source-controller
+./scripts/install.sh
 ```
 
 ## Quick local usage
