@@ -1,11 +1,11 @@
 [package]
-name = "cosmic-media-source-controller"
+name = "tihulu-media-source-controller"
 version = "0.1.0"
 edition = "2021"
 authors = ["Tihulu"]
 license = "GPL-3.0-or-later"
-description = "A COSMIC/Pop!_OS media key source controller that routes media keys to one selected app or device."
-repository = "https://github.com/Tihulu/cosmic-media-source-controller"
+description = "A Pop!_OS/COSMIC media key source controller that routes media keys to one selected app or device."
+repository = "https://github.com/Tihulu/tihulu-media-source-controller"
 readme = "README.md"
 
 [dependencies]
