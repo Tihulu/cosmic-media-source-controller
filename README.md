@@ -1,8 +1,8 @@
 # Tihulu Media Source Controller
 
-A Pop!_OS / COSMIC media source controller for choosing exactly which media source your keyboard media keys control.
+A Pop!_OS / COSMIC media source controller for choosing exactly which media source your media controls target.
 
-The idea is simple: choose one active source, then **Previous**, **Play/Pause**, **Next**, **Stop**, **Volume**, and **Mute** always control that selected source.
+The app stores one active source and routes its own commands to that source. Hardware keyboard media keys also need to be bound to the app commands, otherwise COSMIC will keep sending them to its default MPRIS target.
 
 ## One-line install
 
@@ -11,6 +11,39 @@ curl -fsSL https://raw.githubusercontent.com/Tihulu/tihulu-media-source-controll
 ```
 
 The installer works on Pop!_OS and other apt-based distributions. It installs the required packages, builds the release binary, installs it to `/usr/bin`, and installs the COSMIC applet desktop entry to `/usr/share/applications`.
+
+## Run the full GUI
+
+```bash
+tihulu-media-source-controller
+```
+
+or:
+
+```bash
+tihulu-media-source-controller gui
+```
+
+Use the GUI to choose the active source and test Previous / Play-Pause / Next / Stop routing.
+
+## Make hardware media keys use the selected source
+
+The app cannot magically override COSMIC's existing media-key routing just by being installed. Bind the keyboard media keys to these commands in COSMIC keyboard shortcuts:
+
+| Hardware key | Command |
+| --- | --- |
+| Play / Pause | `tihulu-media-source-controller play-pause` |
+| Next Track | `tihulu-media-source-controller next` |
+| Previous Track | `tihulu-media-source-controller previous` |
+| Stop | `tihulu-media-source-controller stop` |
+
+Recommended extra shortcut:
+
+| Action | Command |
+| --- | --- |
+| Next Source | `tihulu-media-source-controller cycle` |
+
+After this, the physical Play/Pause key will run this app's router instead of relying on the desktop's default MPRIS target.
 
 ## Add it to the COSMIC panel
 
@@ -35,78 +68,18 @@ On Linux desktops, media keys sometimes control the wrong player when multiple a
 This project is designed to make that behavior explicit and predictable:
 
 - choose one active source
-- route media commands to that source
-- switch sources from the COSMIC panel
-- keep the panel icon compact with Previous / Play-Pause / Next controls
+- route app commands to that source
+- switch sources from the GUI or COSMIC panel popup
+- bind hardware media keys to the router commands
 - use notifications when the active target changes
 
 ## Current status
 
-This repository contains the first working GUI shell and backend prototype.
+This repository contains a desktop GUI, a COSMIC applet popup, and a `playerctl`-based backend prototype.
 
-The backend uses `playerctl` to target MPRIS players by name. The desktop entry is marked as a COSMIC applet so it appears in the COSMIC panel applet picker.
+The backend uses `playerctl` to target MPRIS players by name. Hardware media keys require keyboard shortcut binding until a deeper MPRIS proxy or compositor-level shortcut integration is implemented.
 
-## Applet behavior
-
-### Panel icon
-
-The applet should show compact media controls directly in the panel:
-
-```text
-| Previous | Play/Pause | Next |
-```
-
-The active source indicator appears under the panel control group.
-
-### Source picker
-
-Clicking the applet opens a source picker:
-
-- Active Source
-- Available Sources
-- Apps: Spotify, VLC, Firefox, YouTube Music, etc.
-- Manage Sources
-
-### Now Playing panel
-
-The Now Playing view shows:
-
-- active source
-- track title and artist
-- progress bar
-- Previous / Play-Pause / Next controls
-- Change Source button
-
-### Settings
-
-Settings stay minimal:
-
-- Remember last source
-- Show notification on source change
-- Open Source Picker shortcut
-- Next Source shortcut
-- Previous Source shortcut
-
-There is no switch for whether media keys are captured. The entire app exists to make media keys control the selected source.
-
-## Installation from source
-
-```bash
-sudo apt update
-sudo apt install -y git playerctl libnotify-bin cargo
-
-git clone https://github.com/Tihulu/tihulu-media-source-controller.git
-cd tihulu-media-source-controller
-./scripts/install.sh
-```
-
-## Quick local usage
-
-Open the GUI:
-
-```bash
-tihulu-media-source-controller
-```
+## Quick CLI usage
 
 List available media sources:
 
@@ -135,18 +108,6 @@ Cycle to the next source:
 tihulu-media-source-controller cycle
 ```
 
-## Recommended keyboard shortcuts
-
-Until direct media-key interception is implemented, bind these commands in desktop keyboard shortcuts:
-
-| Action | Command |
-| --- | --- |
-| Play / Pause | `tihulu-media-source-controller play-pause` |
-| Next Track | `tihulu-media-source-controller next` |
-| Previous Track | `tihulu-media-source-controller previous` |
-| Stop | `tihulu-media-source-controller stop` |
-| Next Source | `tihulu-media-source-controller cycle` |
-
 ## Troubleshooting
 
 Check that the applet desktop entry is installed:
@@ -158,15 +119,18 @@ ls /usr/share/applications/com.github.tihulu.TihuluMediaSourceController.desktop
 Check that it is marked as a COSMIC applet:
 
 ```bash
-grep -E 'X-CosmicApplet|Categories|Exec' /usr/share/applications/com.github.tihulu.TihuluMediaSourceController.desktop
+grep -E 'Name|Exec|Categories|X-CosmicApplet|X-CosmicHoverPopup|MimeType' /usr/share/applications/com.github.tihulu.TihuluMediaSourceController.desktop
 ```
 
 Expected output includes:
 
 ```text
+Name=Tihulu Media Source Controller
+Exec=tihulu-media-source-controller %F
 Categories=COSMIC
-Exec=tihulu-media-source-controller
 X-CosmicApplet=true
+X-CosmicHoverPopup=Auto
+MimeType=
 ```
 
 ## Development
